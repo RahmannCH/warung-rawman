@@ -1,0 +1,8 @@
+{
+  "name": "warung-rawman",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/test-check.js"
+  }
+}

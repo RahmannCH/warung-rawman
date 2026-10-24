@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#0d9488" />
+  <meta name="description" content="Kasir Warung Pintar - Warung Rawman. Cepat, ringan, 100% offline-ready." />
+  <title>Kasir Warung Pintar - Warung Rawman</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-info">
+      <img src="./icons/icon.svg" alt="Logo Warung Rawman" class="brand-logo" />
+      <div>
+        <h1 class="brand-title" id="header-warung-name">Warung Rawman</h1>
+        <div class="brand-subtitle">Kasir Warung Pintar</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="header-clock" class="header-clock" aria-label="Jam operasional">--:--</span>
+      <button id="btn-sync-pending" class="status-badge status-pending" title="Transaksi menunggu sinkron" aria-label="Transaksi menunggu sinkron" style="display: none; border: none; cursor: pointer;">
+        <span id="sync-pending-count">0</span> antre
+      </button>
+      <span id="connection-status" class="status-badge status-online">
+        <span class="status-dot"></span>
+        <span id="connection-text">Online</span>
+      </span>
+      <button id="btn-toggle-sound" class="btn-icon" title="Bisu/Aktifkan Bunyi" aria-label="Bisu/Aktifkan Bunyi">
+        <svg id="sound-on-icon" class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        <svg id="sound-off-icon" class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="display: none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Areas -->
+  <main class="main-content">
+
+    <!-- Screen 1: Kasir -->
+    <section id="screen-kasir" class="screen active" aria-label="Layar Kasir">
+      <div class="kasir-container">
+        
+        <!-- Sisi Kiri: Pencarian & Katalog Barang -->
+        <div class="catalog-section">
+          
+          <div class="search-bar">
+            <input 
+              type="text" 
+              id="kasir-search" 
+              class="input-field" 
+              placeholder="🔍 Cari barang atau ketik harga..." 
+              autocomplete="off" 
+              aria-label="Cari barang"
+            />
+            <button id="btn-clear-search" class="btn btn-secondary" style="min-width: 60px;">Batal</button>
+          </div>
+
+          <!-- Quick Sale Strip (Barang Receh Tanpa Stok) -->
+          <div class="quick-strip" aria-label="Jual Cepat Receh">
+            <button type="button" class="btn-quick-strip" data-nama="Es Teh Manis" data-harga="3000">+ Es Teh 3k</button>
+            <button type="button" class="btn-quick-strip" data-nama="Kopi Seduh" data-harga="4000">+ Kopi 4k</button>
+            <button type="button" class="btn-quick-strip" data-nama="Gorengan" data-harga="1500">+ Gorengan 1.5k</button>
+            <button type="button" class="btn-quick-strip" data-nama="Kerupuk Kaleng" data-harga="2000">+ Kerupuk 2k</button>
+            <button type="button" class="btn-quick-strip" data-nama="Rokok Batangan" data-harga="3000">+ Rokok Btg 3k</button>
+          </div>
+
+          <!-- Category Filter Pills -->
+          <div class="category-filter-row" aria-label="Filter Kategori">
+            <button type="button" class="cat-pill active" data-cat="all">Semua</button>
+            <button type="button" class="cat-pill" data-cat="sembako">Sembako</button>
+            <button type="button" class="cat-pill" data-cat="minuman">Minuman</button>
+            <button type="button" class="cat-pill" data-cat="makanan">Makanan</button>
+            <button type="button" class="cat-pill" data-cat="sabun">Sabun & Dapur</button>
+            <button type="button" class="cat-pill" data-cat="low">Stok Menipis</button>
+          </div>
+
+          <!-- Quick Manual Entry -->
+          <div class="manual-entry-card">
+            <div class="manual-entry-title">
+              Jual Cepat Barang Lepas / Manual
+            </div>
+            <div class="manual-entry-row">
+              <input 
+                type="text" 
+                id="manual-nama" 
+                class="input-field" 
+                placeholder="Nama barang (cth: Es Teh)" 
+              />
+              <input 
+                type="number" 
+                id="manual-harga" 
+                class="input-field" 
+                placeholder="Harga (Rp)" 
+                inputmode="numeric" 
+                style="max-width: 140px;" 
+              />
+              <button id="btn-add-manual" class="btn btn-primary" style="min-width: 70px;">+ Masuk</button>
+            </div>
+          </div>
+
+          <!-- Grid Barang -->
+          <div id="state-kasir" class="state-box" style="display: none;"></div>
+          <div id="catalog-loading" class="state-box is-loading" style="display: none;">
+            <div class="state-spinner" aria-hidden="true"></div>
+            <div class="state-msg">Memuat daftar barang...</div>
+          </div>
+          <div id="catalog-empty" class="state-box" style="display: none;">
+            <div class="state-icon">📦</div>
+            <div class="state-msg">Belum ada barang di katalog. Masukkan lewat tab Stok atau ketik manual di atas.</div>
+          </div>
+          <div id="item-grid" class="item-grid">
+            <!-- Render via JS -->
+          </div>
+
+        </div>
+
+        <!-- Sisi Kanan: Keranjang Kasir -->
+        <div class="cart-panel">
+          <div class="cart-header">
+            <div class="cart-title btn-icon-text">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+              Keranjang Belanja
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button id="btn-print-last" class="btn btn-secondary btn-icon-text" style="min-height: 44px; padding: 0 10px; font-size: 0.85rem;" title="Cetak ulang struk terakhir">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+                Terakhir
+              </button>
+              <button id="btn-clear-cart" class="btn btn-secondary" style="min-height: 44px; padding: 0 10px; font-size: 0.85rem;">
+                Kosongkan
+              </button>
+            </div>
+          </div>
+
+          <div id="cart-items" class="cart-items-list">
+            <div class="cart-empty">
+              Keranjang masih kosong.<br/>Ketuk barang untuk menambahkan.
+            </div>
+          </div>
+
+          <div class="cart-footer">
+            <div class="total-display">
+              <span class="total-label">Total Belanja:</span>
+              <span id="cart-total" class="total-val">Rp 0</span>
+            </div>
+            <button id="btn-open-pay" class="btn btn-primary btn-block" style="font-size: 1.15rem; min-height: 52px;" disabled>
+              💵 Bayar Sekarang
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Screen 2: Stok -->
+    <section id="screen-stok" class="screen" aria-label="Kelola Stok">
+      <div class="section-card">
+        <div class="section-title">
+          <span>Kelola Stok Barang</span>
+          <button id="btn-add-item-modal" class="btn btn-primary" style="min-height: 44px;">
+            + Tambah Barang
+          </button>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <input 
+            type="text" 
+            id="stok-search" 
+            class="input-field" 
+            placeholder="Cari barang di stok..." 
+          />
+        </div>
+
+        <div id="state-stok" class="state-box" style="display: none;"></div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nama Barang</th>
+                <th>Harga Beli</th>
+                <th>Harga Jual</th>
+                <th>Stok</th>
+                <th style="text-align: right;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="stok-table-body">
+              <!-- Render via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 3: Laporan -->
+    <section id="screen-laporan" class="screen" aria-label="Laporan Penjualan">
+      <div class="section-card">
+        <div class="section-title">
+          <span>Rekap Penjualan Harian</span>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <input type="date" id="laporan-date" class="input-field" style="max-width: 170px; min-height: 44px;" />
+            <button type="button" id="btn-export-laporan-csv" class="btn btn-secondary btn-table btn-icon-text" title="Unduh CSV untuk Excel">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+              Unduh CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric summary -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px;">
+          <div style="background: var(--primary-light); padding: 14px; border-radius: var(--radius); border-left: 4px solid var(--primary);">
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--primary-dark);">TOTAL OMSET</div>
+            <div id="stat-omset" style="font-size: 1.4rem; font-weight: 800; color: var(--primary-dark);">Rp 0</div>
+          </div>
+          <div style="background: #f1f5f9; padding: 14px; border-radius: var(--radius); border-left: 4px solid #64748b;">
+            <div style="font-size: 0.8rem; font-weight: 600; color: #475569;">TRANSAKSI</div>
+            <div id="stat-transaksi" style="font-size: 1.4rem; font-weight: 800; color: #1e293b;">0 struk</div>
+          </div>
+          <div style="background: var(--success-light); padding: 14px; border-radius: var(--radius); border-left: 4px solid var(--success);">
+            <div style="font-size: 0.8rem; font-weight: 600; color: #166534;">ESTIMASI LABA KOTOR</div>
+            <div id="stat-laba" style="font-size: 1.4rem; font-weight: 800; color: #166534;">Rp 0</div>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1rem; margin-bottom: 8px;">Daftar Transaksi Tanggal Ini</h3>
+        <div id="state-laporan" class="state-box" style="display: none;"></div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Jam</th>
+                <th>No Struk</th>
+                <th>Rincian Item</th>
+                <th>Total</th>
+                <th style="text-align: right;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="laporan-table-body">
+              <!-- Render via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 4: Pengaturan -->
+    <section id="screen-pengaturan" class="screen" aria-label="Pengaturan Toko">
+      <div class="section-card">
+        <div class="section-title">
+          <span>Profil Warung & Struk</span>
+        </div>
+
+        <form id="form-settings" style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="setting-nama">Nama Warung</label>
+            <input type="text" id="setting-nama" class="input-field" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="setting-alamat">Alamat Warung</label>
+            <input type="text" id="setting-alamat" class="input-field" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="setting-wa">Nomor WhatsApp Toko</label>
+            <input type="text" id="setting-wa" class="input-field" placeholder="081234567890" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="setting-footer">Pesan Bawah Struk</label>
+            <input type="text" id="setting-footer" class="input-field" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="setting-pin">PIN Kasir (4 Digit)</label>
+            <input type="password" id="setting-pin" class="input-field" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" autocomplete="new-password" placeholder="Kosongkan bila tidak diubah" />
+            <span style="font-size: 0.78rem; color: var(--text-muted);">PIN disimpan sebagai hash SHA-256, bukan teks asli.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="setting-sync-endpoint">URL Sinkronisasi Koperasi (opsional)</label>
+            <input type="url" id="setting-sync-endpoint" class="input-field" placeholder="https://api.koperasi.id/transactions" />
+            <span style="font-size: 0.78rem; color: var(--text-muted);">Kosongkan untuk mode lokal murni. Antrean offline dikirim ke URL ini saat online.</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="margin-top: 6px;">
+            Simpan Pengaturan
+          </button>
+        </form>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <span>Antrean Sinkronisasi</span>
+        </div>
+        <p id="sync-status-text" style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px;">
+          Memeriksa antrean...
+        </p>
+        <div id="state-sync" class="state-box" style="display: none;"></div>
+        <button id="btn-sync-now" class="btn btn-primary btn-icon-text">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+          Sinkronkan Sekarang
+        </button>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <span class="btn-icon-text">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+            Printer Thermal
+          </span>
+        </div>
+        <p id="printer-status" style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px;">
+          Belum terhubung. Cetak akan memakai dialog browser (58mm).
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button id="btn-connect-printer" class="btn btn-primary btn-icon-text">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+            Hubungkan Printer Bluetooth
+          </button>
+          <button id="btn-test-printer" class="btn btn-secondary" disabled>Cetak Uji</button>
+          <button id="btn-disconnect-printer" class="btn btn-secondary" disabled>Putuskan</button>
+        </div>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 10px;">
+          Butuh Chrome Android + printer thermal BLE (XPrinter/Goojprt). Tanpa koneksi, aplikasi otomatis memakai dialog cetak 58mm.
+        </p>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">
+          <span>Cadangan & Pemulihan Data</span>
+        </div>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px;">
+          Seluruh data tersimpan aman di HP/komputer ini (offline-first). Anda bisa mencadangkan data ke berkas JSON.
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button id="btn-export-backup" class="btn btn-secondary">
+            📥 Unduh Cadangan Data
+          </button>
+          <label class="btn btn-outline" style="cursor: pointer;">
+            📤 Pulihkan dari Berkas
+            <input type="file" id="input-import-backup" accept=".json" style="display: none;" />
+          </label>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav" aria-label="Navigasi Utama">
+    <button class="nav-item active" data-tab="kasir" aria-label="Menu Kasir">
+      <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      <span>Kasir</span>
+    </button>
+    <button class="nav-item" data-tab="stok" aria-label="Menu Stok">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-1 18H5V9h14v11zm1-13H4V4h16v3z"/><path d="M9 12h6v2H9z"/></svg>
+      <span>Stok</span>
+    </button>
+    <button class="nav-item" data-tab="laporan" aria-label="Menu Laporan">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+      <span>Laporan</span>
+    </button>
+    <button class="nav-item" data-tab="pengaturan" aria-label="Menu Pengaturan">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <span>Pengaturan</span>
+    </button>
+  </nav>
+
+  <!-- Modal Checkout / Pembayaran -->
+  <div id="modal-checkout" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-checkout-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modal-checkout-title" class="modal-title">Pembayaran Tunai</h2>
+        <button id="btn-close-checkout" class="btn-icon" style="color: var(--text-main); background: #f1f5f9;">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="total-bill-banner">
+          <div class="total-bill-label">Total Tagihan</div>
+          <div id="checkout-total-bill" class="total-bill-amount">Rp 0</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="checkout-cash-input">Nominal Uang Diterima (Rp)</label>
+          <div style="display: flex; gap: 8px;">
+            <input 
+              type="number" 
+              id="checkout-cash-input" 
+              step="1000"
+              min="0"
+              class="input-field" 
+              placeholder="0" 
+              inputmode="numeric" 
+              style="font-size: 1.35rem; font-weight: 800;" 
+            />
+            <button type="button" id="btn-cash-clear" class="btn btn-secondary" style="min-width: 48px; min-height: 48px; font-weight: 800;" title="Kosongkan nominal">C</button>
+          </div>
+          <div id="checkout-cash-terbilang" class="cash-terbilang"></div>
+        </div>
+
+        <div class="cash-chip-group">
+          <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.02em;">+ Tambah Pecahan:</span>
+          <div class="cash-chips-row">
+            <button type="button" class="btn-chip" data-add="500">+500</button>
+            <button type="button" class="btn-chip" data-add="1000">+1.000</button>
+            <button type="button" class="btn-chip" data-add="2000">+2.000</button>
+            <button type="button" class="btn-chip" data-add="5000">+5.000</button>
+            <button type="button" class="btn-chip" data-add="10000">+10.000</button>
+            <button type="button" class="btn-chip" data-add="20000">+20.000</button>
+            <button type="button" class="btn-chip" data-add="50000">+50.000</button>
+          </div>
+        </div>
+
+        <div id="quick-cash-grid" class="quick-cash-grid">
+          <button class="btn-cash is-pas" data-amount="pas">Uang Pas</button>
+          <button class="btn-cash" data-amount="10000">Rp 10.000</button>
+          <button class="btn-cash" data-amount="20000">Rp 20.000</button>
+          <button class="btn-cash" data-amount="50000">Rp 50.000</button>
+          <button class="btn-cash" data-amount="100000">Rp 100.000</button>
+          <button class="btn-cash" data-amount="200000">Rp 200.000</button>
+        </div>
+
+        <div class="change-display">
+          <div class="change-label">KEMBALIAN</div>
+          <div id="checkout-change" class="change-amount">Rp 0</div>
+          <div id="checkout-change-breakdown" class="change-breakdown" style="display: none;"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px;">
+          <button id="btn-finish-print" class="btn btn-primary btn-block btn-icon-text" style="min-height: 52px; font-size: 1.02rem;">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+            Simpan & Cetak Struk 58mm
+          </button>
+          <div style="display: flex; gap: 8px;">
+            <button id="btn-finish-wa" class="btn btn-secondary btn-icon-text" style="flex: 1; min-height: 46px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              Kirim WhatsApp
+            </button>
+            <button id="btn-finish-only" class="btn btn-secondary" style="flex: 1; min-height: 46px;">
+              Simpan Saja
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tambah/Edit Barang -->
+  <div id="modal-item" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-item-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modal-item-title" class="modal-title">Tambah Barang Baru</h2>
+        <button id="btn-close-item-modal" class="btn-icon" style="color: var(--text-main); background: #f1f5f9;">✕</button>
+      </div>
+      <form id="form-item" class="modal-body">
+        <input type="hidden" id="item-form-id" />
+        
+        <div class="form-group">
+          <label class="form-label" for="item-form-nama">Nama Barang *</label>
+          <input type="text" id="item-form-nama" class="input-field" placeholder="Cth: Beras Rojo Lele 1kg" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="item-form-beli">Harga Beli / Modal (Rp) *</label>
+          <input type="number" id="item-form-beli" class="input-field" placeholder="0" inputmode="numeric" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="item-form-jual">Harga Jual (Rp) *</label>
+          <input type="number" id="item-form-jual" class="input-field" placeholder="0" inputmode="numeric" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="item-form-stok">Jumlah Stok Saat Ini *</label>
+          <input type="number" id="item-form-stok" class="input-field" placeholder="0" inputmode="numeric" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="item-form-foto">Foto Barang (Kamera HP / Berkas)</label>
+          <input type="file" id="item-form-foto" accept="image/*" capture="environment" class="input-field" style="padding: 8px;" />
+          <div id="item-foto-preview" style="display: none; margin-top: 6px; text-align: center;">
+            <img id="item-foto-preview-img" src="" alt="Pratinjau Foto" style="max-height: 90px; border-radius: 8px; border: 1px solid var(--border);" />
+            <button type="button" id="btn-remove-foto" class="btn btn-secondary" style="min-height: 44px; padding: 0 10px; font-size: 0.8rem; margin-top: 4px;">Hapus Foto</button>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button type="button" id="btn-cancel-item" class="btn btn-secondary" style="flex: 1;">Batal</button>
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Simpan Barang</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Struk Preview & WhatsApp Number -->
+  <div id="modal-receipt-view" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title">Struk Transaksi</h2>
+        <button id="btn-close-receipt-view" class="btn-icon" style="color: var(--text-main); background: #f1f5f9;">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="receipt-preview-container" style="background: #f8fafc; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius); overflow: auto;">
+          <!-- Render Struk -->
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label class="form-label" for="receipt-customer-phone">Nomor WhatsApp Pelanggan (opsional)</label>
+          <input type="tel" id="receipt-customer-phone" class="input-field" placeholder="08..." />
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-print-again" class="btn btn-primary btn-icon-text" style="flex: 1;">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+            Cetak
+          </button>
+          <button id="btn-send-wa-again" class="btn btn-success" style="flex: 1;">📲 Kirim WA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Gerbang PIN (melindungi layar Pengaturan) -->
+  <div id="modal-pin" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-pin-title">
+    <div class="modal-box" style="max-width: 360px;">
+      <div class="modal-header">
+        <h2 id="modal-pin-title" class="modal-title">Masukkan PIN Kasir</h2>
+        <button id="btn-close-pin" class="btn-icon" style="color: var(--text-main); background: #f1f5f9;" aria-label="Tutup">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="pin-input">PIN 4 Digit</label>
+          <input
+            type="password"
+            id="pin-input"
+            class="input-field"
+            inputmode="numeric"
+            maxlength="4"
+            pattern="[0-9]{4}"
+            autocomplete="off"
+            placeholder="••••"
+            aria-describedby="pin-error"
+            style="font-size: 1.6rem; letter-spacing: 0.4em; text-align: center;"
+          />
+        </div>
+        <div id="pin-error" role="alert" style="display: none; color: #991b1b; background: #fff5f5; border: 1px solid #fca5a5; border-radius: 8px; padding: 10px; font-size: 0.85rem; font-weight: 600;"></div>
+        <button id="btn-pin-submit" class="btn btn-primary btn-block">Buka Pengaturan</button>
+        <p style="font-size: 0.78rem; color: var(--text-muted); text-align: center;">
+          PIN melindungi profil warung, data cadangan, dan pengaturan sinkronisasi.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Print Area -->
+  <div id="print-area"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="./js/app.js"></script>
+
+</body>
+</html>
